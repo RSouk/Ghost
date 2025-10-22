@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost - Person Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 2px solid #2d2d44;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .profiles-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .profile-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #667eea;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .profile-name {
+            font-size: 1.2em;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .risk-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .risk-low { background: #10b981; color: white; }
+        .risk-medium { background: #f59e0b; color: white; }
+        .risk-high { background: #ef4444; color: white; }
+
+        .profile-info {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .profile-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-scan {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: auto;
+        }
+
+        .btn-scan:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-scan:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .breach-count {
+            color: #ef4444;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GHOST</h1>
+            <p class="subtitle">Person Intelligence & Attack Surface Platform</p>
+        </header>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2>Create New Profile</h2>
+                <div id="statusMessage" class="status-message"></div>
+                <form id="createForm">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Username (optional)</label>
+                        <input type="text" id="username">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone (optional)</label>
+                        <input type="tel" id="phone">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="notes" placeholder="Add any additional context..."></textarea>
+                    </div>
+                    <button type="submit">Create Profile</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Profiles</h2>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search profiles...">
+                </div>
+                <div id="profilesList" class="profiles-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👤</div>
+                        <p>No profiles yet. Create your first target profile to get started.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+
+        loadProfiles();
+
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                username: document.getElementById('username').value,
+                phone: document.getElementById('phone').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showMessage('Profile created successfully!', 'success');
+                    document.getElementById('createForm').reset();
+                    loadProfiles();
+                } else {
+                    showMessage('Failed to create profile', 'error');
+                }
+            } catch (error) {
+                showMessage('Error connecting to server', 'error');
+            }
+        });
+
+        async function loadProfiles() {
+            try {
+                const response = await fetch(`${API_URL}/api/profiles`);
+                const data = await response.json();
+                
+                const profilesList = document.getElementById('profilesList');
+                
+                if (data.profiles.length === 0) {
+                    profilesList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👤</div>
+                            <p>No profiles yet. Create your first target profile to get started.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                profilesList.innerHTML = data.profiles.map(profile => {
+                    const riskClass = profile.risk_score > 70 ? 'risk-high' : 
+                                     profile.risk_score > 40 ? 'risk-medium' : 'risk-low';
+                    
+                    return `
+                        <div class="profile-card">
+                            <div class="profile-header">
+                                <div class="profile-name">${profile.name}</div>
+                                <div class="risk-badge ${riskClass}">Risk: ${profile.risk_score}</div>
+                            </div>
+                            <div class="profile-info">
+                                ${profile.email}<br>
+                                ${profile.username ? 'Username: ' + profile.username : ''}
+                                ${profile.breach_count > 0 ? `<div class="breach-count">⚠️ Found in ${profile.breach_count} breaches</div>` : ''}
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn-scan" onclick="scanBreaches('${profile.id}')">🔍 Scan Breaches</button>
+                                <button class="btn-scan" onclick="viewProfile('${profile.id}')">View Details</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading profiles:', error);
+            }
+        }
+
+        function viewProfile(profileId) {
+            alert(`Profile details view coming soon!\nProfile ID: ${profileId}`);
+        }
+
+        async function scanBreaches(profileId) {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = '⏳ Scanning...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/scan/breaches/${profileId}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                } else {
+                    const message = data.breaches_found > 0 
+                        ? `Found ${data.breaches_found} breaches!\nRisk Score: ${data.risk_score}\n\nBreaches:\n${data.breaches.map(b => `- ${b.name} (${b.date})`).join('\n')}`
+                        : 'No breaches found! This email is clean.';
+                    alert(message);
+                    loadProfiles();
+                }
+            } catch (error) {
+                alert('Error scanning for breaches');
+            } finally {
+                button.disabled = false;
+                button.textContent = '🔍 Scan Breaches';
+            }
+        }
+
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', async (e) => {
+            const query = e.target.value;
+            
+            if (query.length < 2) {
+                loadProfiles();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                const profilesList = document.getElementById('profilesList');
+                
+                if (data.results.length === 0) {
+                    profilesList.innerHTML = '<div class="empty-state"><p>No profiles found</p></div>';
+                    return;
+                }
+
+                profilesList.innerHTML = data.results.map(profile => {
+                    const riskClass = profile.risk_score > 70 ? 'risk-high' : 
+                                     profile.risk_score > 40 ? 'risk-medium' : 'risk-low';
+                    
+                    return `
+                        <div class="profile-card">
+                            <div class="profile-header">
+                                <div class="profile-name">${profile.name}</div>
+                                <div class="risk-badge ${riskClass}">Risk: ${profile.risk_score}</div>
+                            </div>
+                            <div class="profile-info">${profile.email}</div>
+                            <div class="profile-actions">
+                                <button class="btn-scan" onclick="scanBreaches('${profile.id}')">🔍 Scan Breaches</button>
+                                <button class="btn-scan" onclick="viewProfile('${profile.id}')">View Details</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
